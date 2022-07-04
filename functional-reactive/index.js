@@ -1,41 +1,6 @@
-//const { TopologicalSort } = require("topological-sort");;
-
 import { TopologicalSort } from "topological-sort";
-
-var variablesObj = { Hello: "foo" };
-var mixinsObj = { test: true, val: 123 };
-var blocksObj = { hi: "bye", yes: "no" };
-var blockModObj1 = {};
-var blockModObj2 = { why: false, yet: "testing", val: 42 };;
-// you can pass nodes as a map into constructor:
-const nodes = new Map();
-nodes.set('variables', variablesObj);
-nodes.set('mixins', mixinsObj);
-const sortOp = new TopologicalSort(nodes);
- 
-// ...or add them to existing object instance with addNode() or addNodes():
-sortOp.addNode('block', blocksObj);
-sortOp.addNodes(new Map([
-    ['block_mod_val1', blockModObj1],
-    ['block_mod_val2', blockModObj2]
-]));
- 
-// then you should add adges between nodes
-sortOp.addEdge('variables', 'mixins'); // from, to
-sortOp.addEdge('mixins', 'block');
-sortOp.addEdge('variables', 'block');
-sortOp.addEdge('block', 'block_mod_val2');
-sortOp.addEdge('block', 'block_mod_val1');;
-const sorted = sortOp.sort();
-const sortedKeys = [...sorted.keys()];;
-const { node: resA, children: resB } = sorted.get('variables');;
-sorted;
-//const { PriorityQueue } = require('js-priority-queue');
-
 import PriorityQueue from "js-priority-queue";
-//const { PriorityQueue } = pkg;
-//console.log(new pkg.BinaryHeapStrategy({ initialValues: [1, 2, 3] }));
-//console.log(new pkg({ initialValues: [ 1, 2, 3 ]}));
+import { _extend as extend } from 'util';
 
 
 class UniquePriorityQueue {
@@ -159,8 +124,7 @@ class PullFRP extends FRPBase {
     }
 }
 
-//var extend = require('util')._extend;
-import { _extend as extend } from 'util';
+
 
 const testNode1_initial = { isValueNode: true, val: 12 };
 const testNode2_initial = { isValueNode: true, val: 31 };
