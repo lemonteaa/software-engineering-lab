@@ -105,7 +105,9 @@ class PushFRP extends FRPBase {
             const xs = [...this.nodes.get(n).children.keys()];
             xs.forEach((x) => { affected.add(x); });
         });
-        const c = Array.from(affected).map((n) => { return [n, this.nodes.get(n).node, this.nodes.get(n).order]; });
+        const c = Array.from(affected).map((n) => { 
+            return [n, this.nodes.get(n).node, this.nodes.get(n).order];
+        });
         var processing = new UniquePriorityQueue(c);
 
         while (!processing.isEmpty()) {
@@ -127,23 +129,20 @@ class PullFRP extends FRPBase {
     updateOne(n) {
         const curNode = this.nodes.get(n);
         if (curNode.node.isValueNode) return curNode.node.val;
+        if (curNode.node.updated) return curNode.node.cachedVal;
 
         console.log(curNode);
 
         var dependNodes = curNode.parents.map((m) => {
             return [m, this.nodes.get(m).order];
         });
-        dependNodes.sort((a, b) => {
-            return a[1] - b[1];
-        });
+        dependNodes.sort((a, b) => { return a[1] - b[1]; });
         console.log(dependNodes);
-        dependNodes.forEach((x) => {
-            const [n, _] = x;
+        dependNodes.forEach(([n, ]) => {
             this.updateOne(n);
         });
 
         const inputs = this._gatherInputs(curNode.parents);
-
         curNode.node.cachedVal = curNode.node.fn(inputs);
         curNode.node.updated = true;
 
@@ -155,7 +154,8 @@ class PullFRP extends FRPBase {
     reset() {
         this.updatedNodes.forEach((n) => {
             this.nodes.get(n).node.updated = false;
-        })
+        });
+        this.updatedNodes.clear();
     }
 }
 
