@@ -4,7 +4,7 @@
   "description": "Demoing FRP algorithm",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "keywords": [
     "FRP",
@@ -16,5 +16,8 @@
     "js-priority-queue": "^0.1.5",
     "topological-sort": "^0.3.0"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "jest": "^28.1.2"
+  }
 }
