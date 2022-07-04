@@ -61,7 +61,8 @@ class UniquePriorityQueue {
         return this.myset.size == 0;
     }
 };
-class PushFRP {
+
+class FRPBase {
     constructor(nodes, edges) {
         //this.nodes = nodes;
         this.sortOp = new TopologicalSort(nodes);
@@ -76,6 +77,25 @@ class PushFRP {
         });
         this.sortedKeys = [...sorted.keys()];
         this.sortedKeys.forEach((k, i) => { this.nodes.get(k).order = i; });
+    }
+
+    _gatherInputs(inputNames) {
+        var inputs = {};
+        inputNames.map((p) => {
+            const node = this.nodes.get(p).node;
+            const v = (node.isValueNode) ? node.val : node.cachedVal;
+            return [p, v];
+        }).forEach((x) => {
+            const [p, v] = x;
+            inputs[p] = v;
+        });
+        return inputs;
+    }
+}
+
+class PushFRP extends FRPBase {
+    constructor(nodes, edges) {
+        super(nodes, edges);
     }
     
     fullUpdate(updatedNodes) {
@@ -87,40 +107,19 @@ class PushFRP {
         });
         const c = Array.from(affected).map((n) => { return [n, this.nodes.get(n).node, this.nodes.get(n).order]; });
         var processing = new UniquePriorityQueue(c);
-        //return processing.dequeue();
+
         while (!processing.isEmpty()) {
             const [n, node, _] = processing.dequeue();
             //console.log(this.nodes.get(n).children);
-            var inputs = {};
-            this.nodes.get(n).parents.map((p) => {
-                const node = this.nodes.get(p).node;
-                const v = (node.isValueNode) ? node.val : node.cachedVal;
-                return [p, v];
-            }).forEach((x) => {
-                const [p, v] = x;
-                inputs[p] = v;
-            })
+            const inputs = this._gatherInputs(this.nodes.get(n).parents);
             node.cachedVal = node.fn(inputs);
         }
     }
 };
 
-class PullFRP {
-    //TODO: ctor copied from Push, merge?
+class PullFRP extends FRPBase {
     constructor(nodes, edges) {
-        //this.nodes = nodes;
-        this.sortOp = new TopologicalSort(nodes);
-        edges.forEach((edge) => { this.sortOp.addEdge(edge[0], edge[1]); });
-        const sorted = this.sortOp.sort();
-        this.nodes = sorted;
-        edges.forEach((e) => {
-            const [from, to] = e;
-            const toNode = this.nodes.get(to);
-            if (!toNode.parents) toNode.parents = [];
-            toNode.parents.push(from);
-        });
-        this.sortedKeys = [...sorted.keys()];
-        this.sortedKeys.forEach((k, i) => { this.nodes.get(k).order = i; });
+        super(nodes, edges);
 
         this.updatedNodes = new Set();
     }
@@ -143,15 +142,7 @@ class PullFRP {
             this.updateOne(n);
         });
 
-        var inputs = {};
-        curNode.parents.map((p) => {
-            const node = this.nodes.get(p).node;
-            const v = (node.isValueNode) ? node.val : node.cachedVal;
-            return [p, v];
-        }).forEach((x) => {
-            const [p, v] = x;
-            inputs[p] = v;
-        });
+        const inputs = this._gatherInputs(curNode.parents);
 
         curNode.node.cachedVal = curNode.node.fn(inputs);
         curNode.node.updated = true;
