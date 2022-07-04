@@ -68,6 +68,12 @@ class PushFRP {
         edges.forEach((edge) => { this.sortOp.addEdge(edge[0], edge[1]); });
         const sorted = this.sortOp.sort();
         this.nodes = sorted;
+        edges.forEach((e) => {
+            const [from, to] = e;
+            const toNode = this.nodes.get(to);
+            if (!toNode.parents) toNode.parents = [];
+            toNode.parents.push(from);
+        });
         this.sortedKeys = [...sorted.keys()];
         this.sortedKeys.forEach((k, i) => { this.nodes.get(k).order = i; });
     }
@@ -83,8 +89,18 @@ class PushFRP {
         var processing = new UniquePriorityQueue(c);
         //return processing.dequeue();
         while (!processing.isEmpty()) {
-            const thing = processing.dequeue();
-            
+            const [n, node, _] = processing.dequeue();
+            //console.log(this.nodes.get(n).children);
+            var inputs = {};
+            this.nodes.get(n).parents.map((p) => {
+                const node = this.nodes.get(p).node;
+                const v = (node.isValueNode) ? node.val : node.cachedVal;
+                return [p, v];
+            }).forEach((x) => {
+                const [p, v] = x;
+                inputs[p] = v;
+            })
+            node.cachedVal = node.fn(inputs);
         }
     }
 };
@@ -112,3 +128,4 @@ const o1 = new PushFRP(myTest, myTestEdges);
 const what1 = o1.nodes;;
 testNode3.fn({ test1: 1, test2: 4 });
 o1.fullUpdate(['test4', 'test1']);;
+console.log(o1.nodes);
