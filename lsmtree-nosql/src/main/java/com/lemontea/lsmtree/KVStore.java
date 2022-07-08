@@ -1,11 +1,15 @@
 package com.lemontea.lsmtree;
 
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class KVStore {
     private ConcurrentSkipListMap<String, Object> inMemoryMap;
     private int persistThreshold = 100;
     private boolean persistInProgress = false;
+
+    private ExecutorService compactor = Executors.newSingleThreadExecutor();
 
     public KVStore() {
         inMemoryMap = new ConcurrentSkipListMap<String, Object>();
