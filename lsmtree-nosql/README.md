@@ -14,6 +14,7 @@ This can be a tricky thing as the devil's in the detail, and many online article
 - Similarly, there is also a number of "runs" in each level, and within the same layer, higher numbered run take percedance.
 - In general, each Slab is stored as a file on disk using a format called `SSTable`. The keys are sorted, and there is additionally a B-Tree indexing into these key. This allow efficient query within the same slab.
 - An exception is made for level 0 as it resides in memory only. It can be stored using a Binary Search Tree(BST).
+- To re-iterate: to query a key, just query all the slabs according to their linear ordering (sorted by the run and level using the lexicographical ordering) - query the "first" slab, and if it's not found, query the "second" slab, and so on, all the way until the end. Hence if the same key is present in multiple slab, the slab whose ordering appear first wins.
 
 *Insertion*
 - To insert a key, just add it the the level 0 in-memory, using the `add()` method of the BST.
